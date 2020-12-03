@@ -1,7 +1,8 @@
 <template>
   <div id="detail">
     <detail-nav-bar class="detail-nav" @titleClick="titleClick" ref="detailNav"></detail-nav-bar>
-    <scroll class="wrapper-content" 
+    <div class="scroll-wrapper">
+      <scroll class="wrapper-content" 
             ref="scroll" 
             :mouse-wheel="true"
             :probe-type="3"
@@ -15,8 +16,11 @@
       <detail-comment-info :comment-info="commentInfo" ref="comment"></detail-comment-info>
       <goods-list :goods="recommends" ref="recommend"></goods-list>
     </scroll>
-    <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
+    </div>
+    
+    <detail-bottom-bar @addCart="addToCart" class="detail-bottom-bar"></detail-bottom-bar>
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
+    <!-- <toast :message="message" :show="show"></toast> -->
   </div>
 </template>
 
@@ -37,6 +41,10 @@ import {getDetail,Goods,Shop,GoodsParam,getRecommend} from "network/detail.js"
 import {debounce} from "common/utils.js"
 import {backTopMixin} from "common/mixin.js"
 
+import { mapActions } from "vuex"
+
+// import Toast from "components/common/toast/Toast.vue"
+
 export default {
   name: "Detail",
   components: {
@@ -50,6 +58,7 @@ export default {
     GoodsList,
     DetailBottomBar,
     Scroll,
+    // Toast
   },
   mixins: [backTopMixin],
   data() {
@@ -65,6 +74,8 @@ export default {
       refresh: null,
       themeTopYs: [],
       getThemeTopY: null,
+      // message: '',
+      // show: false,
     }
   },
   created() {
@@ -105,13 +116,13 @@ export default {
       this.themeTopYs = [];
       this.themeTopYs.push(0);
       if(this.$refs.params) {
-        this.themeTopYs.push(this.$refs.params.$el.offsetTop - 44);
+        this.themeTopYs.push(this.$refs.params.$el.offsetTop);
       };
       if(this.$refs.comment) {
-        this.themeTopYs.push(this.$refs.comment.$el.offsetTop - 44);
+        this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
       };
       if(this.$refs.recommend) {
-        this.themeTopYs.push(this.$refs.recommend.$el.offsetTop - 44);
+        this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
       };
       this.themeTopYs.push(Number.MAX_VALUE);
       // console.log(this.themeTopYs);
@@ -124,6 +135,7 @@ export default {
     });
   },
   methods: {
+    ...mapActions(['addCart']),
     imageLoad() {
       // 此处事件监听了很多次，因此本函数执行次数也很多次，而下面赋值执行了很多次，达不到防抖效果
       // this.refresh = debounce(this.$refs.scroll.refresh, 500);
@@ -174,7 +186,20 @@ export default {
 
       // 将商品添加到购物车
       // this.$store.commit('addCart', product);
-      this.$store.dispatch('addCart', product);
+      this.$store.dispatch('addCart', product).then(res => {
+        // this.show = true;
+        // this.message = res;
+        // setTimeout(() => {
+        //   this.show = false;
+        //   this.message = '';
+        // }, 1500);
+        this.$toast.show(res, 1500);
+        // console.log(this.$toast);
+      });
+      // 通过mapActions来dispatch actions
+      // this.addCart(product).then(res => {
+      //   console.log(res);
+      // });
     },
   }
 }
@@ -189,13 +214,32 @@ export default {
   }
 
   #detail .detail-nav{
-    position: relative;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
     z-index: 10;
     background-color: white;
   }
 
+  .scroll-wrapper{
+    position: fixed;
+    width: 100%;
+    position: fixed;
+    bottom: 49px;
+    right: 0;
+    left: 0;
+    top:44px;
+  }
   .wrapper-content{
-    height: calc(100% - 44px - 49px);
+    height: 100%;
     background-color: #fff;
+  }
+
+  .detail-bottom-bar{
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
   }
 </style>

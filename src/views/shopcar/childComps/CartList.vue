@@ -29,13 +29,16 @@ export default {
 
 <style scoped>
   .cart-list{
-    position: inherit;
-    height: calc(100vh - 44px - 49px - 40px);
+    position: fixed;
+    top: 44px;
+    bottom: 89px;
+    right: 0;
+    left: 0;
   }
   .wrapper-content{
     position: absolute;
-    top: 44px;
-    bottom: 89px;
+    top: 0px;
+    bottom: 0px;
     left: 0;
     right: 0;
     overflow: hidden;

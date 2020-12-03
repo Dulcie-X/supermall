@@ -10,5 +10,8 @@ export default {
   },
   convertCheckButton(state, payload) {
     state.cartList[payload].checked = !state.cartList[payload].checked
-  }
+  },
+  isSelectAll(state, payload) {
+    state.cartList.forEach(item => item.checked = !payload);
+  },
 }

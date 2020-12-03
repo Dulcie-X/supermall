@@ -1,13 +1,13 @@
 <template>
   <div class="bottom-bar">
     <div class="check-content">
-      <check-button class="check-button"></check-button>
+      <check-button class="check-button" :is-checked="isSelectAll" @click.native="checkClick"></check-button>
       <span>全选</span>
     </div>
     <div class="total-price">
       合计：{{totalPrice}}
     </div>
-    <div class="calculate">
+    <div class="calculate" @click="calcClick">
       结算 ({{checkLength}})
     </div>
   </div>
@@ -20,6 +20,11 @@ export default {
   name: "CartBottomBar",
   components: {
     CheckButton,
+  },
+  data() {
+    return {
+      isSelectAllButton: false,
+    }
   },
   computed: {
     totalPrice() {
@@ -34,6 +39,23 @@ export default {
         return item.checked
       }).length;
     },
+    isSelectAll() {
+      // 此方法性能不够高，因为会把整个数组遍历完，但实际上只需要有一个元素未被选中即可完成判断
+      // return !(this.$store.getters.cartList.filter(item => !item.checked).length);
+      if(this.$store.getters.cartList.length === 0) return false;
+      return !this.$store.getters.cartList.find(item => !item.checked);
+    }
+  },
+  methods: {
+    checkClick() {
+      // console.log("监听点击");
+      this.$store.commit("isSelectAll", this.isSelectAll);
+    },
+    calcClick() {
+      if(!this.$store.getters.cartList || !this.$store.getters.cartList.find(item => item.checked)) {
+        this.$toast.show('请选择购买的商品', 2000);
+      }
+    }
   }
 }
 </script>
@@ -42,10 +64,13 @@ export default {
   .bottom-bar{
     height: 40px;
     background-color: #eee;
-    position: relative;
+    position: fixed;
     line-height: 40px;
     display: flex;
     justify-content: space-between;
+    bottom: 49px;
+    left: 0;
+    right: 0;
   }
   .check-content{
     display: flex;
